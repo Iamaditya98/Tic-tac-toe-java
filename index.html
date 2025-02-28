@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin: 20px auto;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+        .cell:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic-Tac-Toe</h1>
+    <div class="board" id="board">
+        <div class="cell" data-row="0" data-col="0"></div>
+        <div class="cell" data-row="0" data-col="1"></div>
+        <div class="cell" data-row="0" data-col="2"></div>
+        <div class="cell" data-row="1" data-col="0"></div>
+        <div class="cell" data-row="1" data-col="1"></div>
+        <div class="cell" data-row="1" data-col="2"></div>
+        <div class="cell" data-row="2" data-col="0"></div>
+        <div class="cell" data-row="2" data-col="1"></div>
+        <div class="cell" data-row="2" data-col="2"></div>
+    </div>
+    <button id="reset">Reset Game</button>
+    <p id="status"></p>
+
+    <script>
+        const board = document.getElementById('board');
+        const status = document.getElementById('status');
+        const resetButton = document.getElementById('reset');
+
+        board.addEventListener('click', async (event) => {
+            const cell = event.target;
+            if (cell.classList.contains('cell')) {
+                const row = cell.getAttribute('data-row');
+                const col = cell.getAttribute('data-col');
+                const response = await fetch(`/api/game/move?row=${row}&col=${col}`, { method: 'POST' });
+                const result = await response.text();
+                status.textContent = result;
+                if (response.ok) {
+                    cell.textContent = result.includes('X') ? 'X' : 'O';
+                }
+            }
+        });
+
+        resetButton.addEventListener('click', async () => {
+            const response = await fetch('/api/game/reset', { method: 'POST' });
+            const result = await response.text();
+            status.textContent = result;
+            document.querySelectorAll('.cell').forEach(cell => cell.textContent = '');
+        });
+    </script>
+</body>
+</html>
